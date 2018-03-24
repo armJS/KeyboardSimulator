@@ -1,22 +1,27 @@
 import React from 'react'
-import {complete, timeOut} from "../actions";
+import {complete, setRestOfTime, timeOut} from "../actions";
 import {connect} from "react-redux";
+import {GAME_PERIOD_IN_SECONDS} from "../constants";
 
 class Timer extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {seconds: 0};
-        this.onTimeOut = props.onTimeOut;
+        this.state = {seconds: props.restOfTime};
         this.onComplete = props.onComplete;
-
+        this.setRestOfTime = props.setRestOfTime;
     }
 
     componentDidMount() {
-        this.setState({
-            seconds: 60,
-        }, () => {
-            this.startTimer();
-        });
+        this.startTimer();
+    }
+
+    componentWillUnmount() {
+
+        clearInterval(this.timer);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        this.setState({seconds: nextProps.restOfTime});
     }
 
     startTimer = () => {
@@ -24,52 +29,52 @@ class Timer extends React.Component {
     };
 
     finish = () => {
-        this.onComplete(this.state.seconds);
         clearInterval(this.timer);
+        this.onComplete();
     };
 
     countDown = () => {
         let seconds = this.state.seconds - 1;
-        this.setState({
-            seconds: seconds,
-        });
+        this.setRestOfTime(seconds);
 
-        if (seconds == 0) {
-            clearInterval(this.timer);
-            this.onTimeOut()
+        if (seconds === 0) {
+            this.finish();
         }
     };
 
     render() {
         return (
             <div>
-                <label>Осталось времени: {this.state.seconds}</label>
-                <button onClick={this.finish}>Закончить</button>
+                <ul>
+                    <li>
+                        <button onClick={this.finish}>Закончить</button>
+                    </li>
+                    <li>
+                        <label>Осталось времени: {this.state.seconds} c</label>
+                    </li>
+                    <li>
+                        <label>Прошло времени : {GAME_PERIOD_IN_SECONDS - this.state.seconds} c</label>
+                    </li>
+                </ul>
             </div>
         );
     }
 }
 
-const mapStateToProps = state => {
-    return {
-        restOfTime: state.restOfTime,
-    }
-};
-
 const mapDispatchToProps = dispatch => {
     return {
-        onTimeOut: () => {
-            dispatch(timeOut())
-        },
-
         onComplete: (restOfTime) => {
             dispatch((complete(restOfTime)))
+        },
+
+        setRestOfTime: (restOfTime) => {
+            dispatch((setRestOfTime(restOfTime)))
         }
     }
 };
 
 
 export default connect(
-    mapStateToProps,
+    null,
     mapDispatchToProps
 )(Timer)

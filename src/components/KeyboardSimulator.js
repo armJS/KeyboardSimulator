@@ -6,33 +6,32 @@ import Timer from "./Timer";
 import UserInput from "./UserInput";
 
 let KeyboardSimulator = ({appMode, startApp, incorrectInputCount, correctInputCount, restOfTime}) => {
-    const renderTimerAndUserInput = () => {
-        return <React.Fragment>
-            <Timer/>
-            <UserInput {...{appMode, incorrectInputCount, correctInputCount}}/>
-        </React.Fragment>
-    };
-
-    const renderResult = () => {
-        return <React.Fragment>
-            <ul>
-                <li>{incorrectInputCount}</li>
-                <li>{correctInputCount}</li>
-                <li>{restOfTime}</li>
-                <li><button onClick={startApp}>Заново</button></li>
-            </ul>
-
-        </React.Fragment>
-    };
-
     return (
         <React.Fragment>
             {appMode === APP_MODES.STANDBY && <button onClick={startApp}>Старт</button>}
-            {appMode === APP_MODES.DONE && renderResult()}
-            {appMode === APP_MODES.IN_PROGRESS && renderTimerAndUserInput()}
+            {appMode === APP_MODES.DONE && renderResult(startApp, restOfTime, incorrectInputCount, correctInputCount)}
+            {appMode === APP_MODES.IN_PROGRESS && renderTimerAndUserInput(restOfTime, appMode, incorrectInputCount, correctInputCount)}
         </React.Fragment>
     )
+};
 
+const renderTimerAndUserInput = (restOfTime, appMode, incorrectInputCount, correctInputCount) => {
+    return <React.Fragment>
+        <Timer restOfTime={restOfTime}/>
+        <UserInput {...{appMode, incorrectInputCount, correctInputCount}}/>
+    </React.Fragment>
+};
+
+const renderResult = (startApp, restOfTime, incorrectInputCount, correctInputCount) => {
+    return <React.Fragment>
+        <ul>
+            <li><label>Кол-во ошибок: </label> {incorrectInputCount}</li>
+            <li><label>Правильных ответов: </label> {correctInputCount}</li>
+            <li><label>Осталось времени: </label> {restOfTime}c</li>
+            <li><button onClick={startApp}>Заново</button></li>
+        </ul>
+
+    </React.Fragment>
 };
 
 const mapStateToProps = state => {
